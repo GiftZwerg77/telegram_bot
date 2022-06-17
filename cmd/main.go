@@ -1,11 +1,15 @@
 package main
-//  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
+
 import (
 	"log"
+  "os"
+  "fmt"
   tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
-const TOKEN string
+var TOKEN string
 func main() {
+  TOKEN  := os.Getenv("TOKEN")
+  fmt.Println(TOKEN)
 	bot, err := tgbotapi.NewBotAPI(TOKEN)
 	if err != nil {
 		log.Panic(err)
@@ -23,12 +27,40 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+			if update.Message.IsCommand(){
+        prepareCommand(bot,update.Message)
+      }else{
+        msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			  bot.Send(msg)
+      }
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-	//		msg.ReplyToMessageID = update.Message.MessageID
-
-			bot.Send(msg)
 		}
 	}
+}
+
+func prepareCommand(bot *tgbotapi.BotAPI,msg *tgbotapi.Message){
+  switch msg.Command(){
+    case "help":
+      helpCommand(bot, msg)
+    case "list":
+      listCommand(bot, msg)
+    case "start":
+      startCommand(bot, msg)
+    default:
+      bot.Send(tgbotapi.NewMessage(msg.Chat.ID,msg.Command()+" - this is unknown command"))
+  }
+
+}
+
+func helpCommand(bot *tgbotapi.BotAPI,msg *tgbotapi.Message){
+  answ := tgbotapi.NewMessage(msg.Chat.ID, "this is trade bot\n")
+  bot.Send(answ)
+}
+func listCommand(bot *tgbotapi.BotAPI,msg *tgbotapi.Message){
+  answ := tgbotapi.NewMessage(msg.Chat.ID, "show list\n")
+  bot.Send(answ)
+}
+func startCommand(bot *tgbotapi.BotAPI,msg *tgbotapi.Message){
+  answ := tgbotapi.NewMessage(msg.Chat.ID, "START\n")
+  bot.Send(answ)
 }
