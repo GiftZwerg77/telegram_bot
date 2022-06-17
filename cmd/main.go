@@ -5,8 +5,11 @@ import (
   "os"
   "fmt"
   tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 )
 var TOKEN string
+var productServiece *product.Serviece
+
 func main() {
   TOKEN  := os.Getenv("TOKEN")
   fmt.Println(TOKEN)
